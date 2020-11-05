@@ -1,12 +1,24 @@
+require("dotenv").config()
 const express = require("express")
 const cors = require("cors")
+const massive = require("massive")
 const cc = require("./controllers/characterController")
+const {SERVER_PORT, CONNECTION_STRING} = process.env
+
 
 const app = express()
-const SERVER_PORT = 3322
 
 app.use(cors())
 app.use(express.json())
+
+massive({
+    connectionString: CONNECTION_STRING,
+    ssl: {rejectUnauthorized: false}
+}).then(db => {
+    app.set('db', db)
+    // Quotation bit needs to be called the same as the folder db
+    console.log('db is connected')
+}).catch((err) => console.log(err))
 
 app.get('/api/characters', cc.getAllCharacters)
 app.get('/api/character/:id', cc.getCharacter)
